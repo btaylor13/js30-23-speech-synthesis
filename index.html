@@ -38,6 +38,50 @@
       );
       const speakButton = document.querySelector("#speak");
       const stopButton = document.querySelector("#stop");
+
+      msg.text = document.querySelector('[name="text"]').value;
+
+      function populateVoices() {
+        // speech synthesis method - returns list of speech synthesis objects representing all available voices on device
+        voices = this.getVoices();
+        console.log(voices);
+
+        voicesDropdown.innerHTML = voices
+          .filter((voice) => voice.lang.includes("en"))
+          .map(
+            (voice) =>
+              `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`
+          )
+          .join("");
+      }
+
+      function setVoice() {
+        // loop over all voices in array where name attribute is the same as the option value
+        msg.voice = voices.find((voice) => voice.name === this.value);
+        toggle();
+      }
+
+      function toggle(startOver = true) {
+        speechSynthesis.cancel();
+
+        if (startOver) {
+          speechSynthesis.speak(msg);
+        }
+      }
+
+      function setOption() {
+        msg[this.name] = this.value;
+        toggle();
+      }
+
+      speechSynthesis.addEventListener("voiceschanged", populateVoices);
+      voicesDropdown.addEventListener("change", setVoice);
+
+      options.forEach((option) => option.addEventListener("change", setOption));
+
+      speakButton.addEventListener("click", toggle);
+      stopButton.addEventListener("click", () => toggle(false));
+      // stopButton.addEventListener("click", toggle.bind(null, false));
     </script>
   </body>
 </html>
